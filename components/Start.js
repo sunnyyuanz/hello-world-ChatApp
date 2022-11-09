@@ -8,10 +8,12 @@ import {
   View,
   Alert,
   ImageBackground,
+  TouchableOpacity,
 } from 'react-native';
 
 export default function Start(props) {
   let [text, setText] = useState('');
+  let [color, setColor] = useState('');
   const placeholder = 'Your Name';
 
   return (
@@ -31,15 +33,35 @@ export default function Start(props) {
           />
           <Text style={styles.text}>Choose Background Color:</Text>
           <View style={styles.circleContainer}>
-            <View style={styles.bkCircle}></View>
-            <View style={styles.gyCircle}></View>
-            <View style={styles.lgCircle}></View>
-            <View style={styles.grCircle}></View>
+            <TouchableOpacity
+              style={styles.bkCircle}
+              onPress={() => {
+                setColor('#090C08');
+              }}
+            ></TouchableOpacity>
+            <TouchableOpacity
+              style={styles.gyCircle}
+              onPress={() => {
+                setColor('#474056');
+              }}
+            ></TouchableOpacity>
+            <TouchableOpacity
+              style={styles.lgCircle}
+              onPress={() => {
+                setColor('#8A95A5');
+              }}
+            ></TouchableOpacity>
+            <TouchableOpacity
+              style={styles.grCircle}
+              onPress={() => {
+                setColor('#B9C6AE');
+              }}
+            ></TouchableOpacity>
           </View>
 
           <Text
             onPress={() => {
-              props.navigation.navigate('Chat', { name: text });
+              props.navigation.navigate('Chat', { name: text, color: color });
             }}
             style={styles.button}
           >
