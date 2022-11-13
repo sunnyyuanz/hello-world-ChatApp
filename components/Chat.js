@@ -15,7 +15,6 @@ export default class Chat extends React.Component {
         avatar: '',
         name: '',
       },
-      loggedInText: 'Please wait, youare getting logged in',
     };
     //Firebase configuration
     const firebaseConfig = {
@@ -41,12 +40,13 @@ export default class Chat extends React.Component {
         firebase.auth().signInAnonymously();
       }
       this.setState({
-        //Will get type error if use uid, my firebase is using UID. 
-        uid: user.UID,
+        //Will get type error if use uid, my firebase is using UID.
+        uid: user.uid,
         messages: [],
-        user: { _id: user.UID, name: name },
-        loggedInText: '',
+        user: { _id: user.uid, name: name },
       });
+      //Anonymous user authentication
+      this.referenceMessages = firebase.firestore().collection('messages');
       this.unsubscribe = this.referenceMessages
         .orderBy('createdAt', 'desc')
         .onSnapshot(this.onCollectionUpdate);
@@ -114,7 +114,7 @@ export default class Chat extends React.Component {
           renderBubble={this.renderBubble.bind(this)}
           messages={this.state.messages}
           onSend={(messages) => this.onSend(messages)}
-          user={{ id: 1 }}
+          user={{ id: this.state.user._id, name: name }}
           style={{ backgroundColor: color }}
         />
         {Platform.OS === 'android' ? (
