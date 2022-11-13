@@ -9,6 +9,7 @@ import {
   Alert,
   ImageBackground,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 export default function Start(props) {
@@ -30,6 +31,8 @@ export default function Start(props) {
             onChangeText={(text) => setText(text)}
             value={text}
             placeholder={placeholder}
+            accessible={true}
+            accessibilityLabel="Input for your name"
           />
           <Text style={styles.text}>Choose Background Color:</Text>
           <View style={styles.circleContainer}>
@@ -38,24 +41,36 @@ export default function Start(props) {
               onPress={() => {
                 setColor('#090C08');
               }}
+              accessible={true}
+              accessibilityLabel="Black"
+              accessibilityRole="button"
             ></TouchableOpacity>
             <TouchableOpacity
               style={styles.gyCircle}
               onPress={() => {
                 setColor('#474056');
               }}
+              accessible={true}
+              accessibilityLabel="gray"
+              accessibilityRole="button"
             ></TouchableOpacity>
             <TouchableOpacity
               style={styles.lgCircle}
               onPress={() => {
                 setColor('#8A95A5');
               }}
+              accessible={true}
+              accessibilityLabel="light gray"
+              accessibilityRole="button"
             ></TouchableOpacity>
             <TouchableOpacity
               style={styles.grCircle}
               onPress={() => {
                 setColor('#B9C6AE');
               }}
+              accessible={true}
+              accessibilityLabel="green"
+              accessibilityRole="button"
             ></TouchableOpacity>
           </View>
 
@@ -64,6 +79,9 @@ export default function Start(props) {
               props.navigation.navigate('Chat', { name: text, color: color });
             }}
             style={styles.button}
+            accessible={true}
+            accessibilityLabel="Start chatting"
+            accessibilityRole="button"
           >
             Start Chatting
           </Text>
@@ -85,9 +103,10 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
   inputContainer: {
-    height: 300,
+    height: '44%',
     backgroundColor: '#fff',
-    margin: 25,
+    marginHorizontal: 25,
+    marginVertical: '15%',
     padding: 20,
     color: '#757083',
     fontSize: 16,
@@ -95,6 +114,8 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     justifyContent: 'space-between',
+    resizeMode: 'cover',
+    flexDirection: 'column',
   },
   text: {
     color: '#757083',
