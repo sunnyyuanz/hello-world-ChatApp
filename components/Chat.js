@@ -5,7 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const firebase = require('firebase');
 require('firebase/firestore');
 import NetInfo from '@react-native-community/netinfo';
-
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
 export default class Chat extends React.Component {
   constructor() {
     super();
@@ -17,6 +18,8 @@ export default class Chat extends React.Component {
         avatar: '',
         name: '',
       },
+      image: null,
+      location: null,
       isConnected: false,
     };
 
@@ -52,6 +55,8 @@ export default class Chat extends React.Component {
           name: data.user.name,
           avatar: data.user.avatar || '',
         },
+        image: data.image || null,
+        location: data.location || null,
       });
     });
     this.setState({ messages });
@@ -83,7 +88,7 @@ export default class Chat extends React.Component {
     //Set the name in the navigation bar
     let name = this.props.route.params.name;
     this.props.navigation.setOptions({ title: name });
-    this.getMessages();
+    this.getMessages(); //get Message from async storage
     NetInfo.fetch().then((connection) => {
       if (connection.isConnected) {
         this.setState({ isConnected: true });
@@ -109,23 +114,25 @@ export default class Chat extends React.Component {
       this.unsubscribe = this.referenceMessages
         .orderBy('createdAt', 'desc')
         .onSnapshot(this.onCollectionUpdate); // stop updating after the messages are loaded from database and sorted by createdAt , the first load will only load msg created before the current time.
-      this.saveMessages();
+      this.saveMessages(); //save the messages to async storage
     });
   }
   componentWillUnmount() {
     if (this.isConnected) {
+      //"this" here is the whole app isConnected from NetInfo not the state isConnected.
       this.unsubscribe();
       this.authUnsubscribe();
     }
   }
   // append new message to previous
+  //Why the onSend messages here is an array?
   onSend(messages = []) {
     this.setState(
       (previousState) => ({
         messages: GiftedChat.append(previousState.messages, messages),
       }), // appending the new msg to the message state.
       () => {
-        this.saveMessages();
+        this.saveMessages(); //every time message sent will be saved to asyncStorage.
         this.addMessage(); // I had this line of code outside the setState method, this was the reason sender's msg could not be added to the database.
       }
     );
@@ -149,6 +156,8 @@ export default class Chat extends React.Component {
       text: message.text || '',
       createdAt: message.createdAt,
       user: message.user,
+      image: message.image || null,
+      location: message.location || null,
     });
   }
 
@@ -162,17 +171,42 @@ export default class Chat extends React.Component {
   }
 
   renderInputToolbar(props) {
+    //hide the inputToolbar if the connection is off
     if (this.state.isConnected == false) {
     } else {
       return <InputToolbar {...props} />;
     }
   }
 
+  renderCustomView(props) {
+    //this currentMessage is from giftChat
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
+  }
+
+  renderCustomActions(props) {
+    return <CustomActions {...props} />;
+  }
   render() {
     let color = this.props.route.params.color;
     return (
       <View style={{ flex: 1, backgroundColor: color }}>
         <GiftedChat
+          renderCustomView={this.renderCustomView.bind(this)}
+          renderActions={this.renderCustomActions.bind(this)}
           isConnected={this.state.isConnected}
           renderInputToolbar={this.renderInputToolbar.bind(this)} //Bind creates a new function that will force the this inside the function to be the parameter passed to bind(). not bound, this could be a global this.
           renderBubble={this.renderBubble.bind(this)}
